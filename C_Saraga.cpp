@@ -1,60 +1,54 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <string>
+#include <unordered_map>
+#include <climits>
+
 using namespace std;
 
-void solve() {
-    string s, b;
-    cin >> s >> b;
+string findInterestingAbbreviation(const string& S, const string& T) {
+    unordered_map<char, int> firstPos; // Store the first occurrence of each character in S
+    unordered_map<char, int> lastPos; // Store the last occurrence of each character in T
 
-    // Maps to store first and last occurrences of characters
-    map<char, int> first_s, last_b;
-
-    // Populate first_s with the first occurrence indices in s
-    for (int i = 0; i < s.length(); i++) {
-        if (first_s.find(s[i]) == first_s.end()) {
-            first_s[s[i]] = i;
+    // Record the first occurrence of each character in S
+    for (int i = 0; i < S.size(); i++) {
+        if (firstPos.find(S[i]) == firstPos.end()) {
+            firstPos[S[i]] = i + 1; // Store 1-based index
         }
     }
 
-    // Populate last_b with the last occurrence indices in b
-    for (int i = 0; i < b.length(); i++) {
-        last_b[b[i]] = i;
-    }
-
-    vector<string> candidates;
-
-    // Generate candidate strings based on common characters
-    for (auto e : first_s) {
-        char c = e.first;
-        if (last_b.find(c) != last_b.end()) {
-            int first_index_s = e.second;
-            int last_index_b = last_b[c];
-            
-            // Create substrings and concatenate
-            string prefix = s.substr(0, first_index_s + 1);
-            string suffix = b.substr(last_index_b);
-            candidates.push_back(prefix + suffix);
+    // Record the last occurrence of each character in T
+    for (int i = T.size() - 1; i >= 0; i--) {
+        if (lastPos.find(T[i]) == lastPos.end()) {
+            lastPos[T[i]] = i + 1; // Store 1-based index
         }
     }
 
-    // Find the minimal-length string among candidates
     string result = "-1";
-    if (!candidates.empty()) {
-        result = candidates[0];
-        for (const string& str : candidates) {
-            if (str.length() < result.length()) {
-                result = str;
+    int minLength = INT_MAX;
+
+    // Check each character for interesting abbreviation
+    for (const auto& entry : firstPos) {
+        char ch = entry.first;
+        if (lastPos.find(ch) != lastPos.end()) {
+            // Form the abbreviation
+            string prefix = S.substr(0, firstPos[ch]);
+            string suffix = T.substr(lastPos[ch] - 1);
+            string candidate = prefix + suffix;
+
+            // Update result if this candidate is shorter
+            if (candidate.size() < minLength) {
+                minLength = candidate.size();
+                result = candidate;
             }
         }
     }
 
-    cout << result << endl;
+    return result;
 }
 
 int main() {
-    int t;
-    cin >> t;  // Read the number of test cases
-    while (t--) {
-        solve();  // Call solve function for each test case
-    }
+    string S, T;
+    cin >> S >> T;
+    cout << findInterestingAbbreviation(S, T) << endl;
     return 0;
 }

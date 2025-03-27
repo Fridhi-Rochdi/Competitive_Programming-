@@ -6,45 +6,66 @@ void solve() {
     cin >> n;
     string s;
     cin >> s;
-    vector<int> zero_indices, one_indices;
-    for (int i = 0; i < n; ++i) {
-        if (s[i] == '0') {
-            zero_indices.push_back(i);
+
+    if (n == 1) {
+        cout << 1 << endl;
+        return;
+    }
+
+    int ones = count(s.begin(), s.end(), '1'); 
+    int l = 1, r = ones + 1; 
+
+    
+    while (l < r - 1) {
+        int mid = (l + r) / 2;
+        int k = mid;
+        vector<int> vec(n, 0);
+
+        
+        for (int i = n - 1; i >= 0; i--) {
+            if (k > 0 && s[i] == '1') {
+                vec[i] = 1;
+                k--;
+            }
+        }
+
+        
+        bool ok = true;
+        int cur = 0;
+        for (int i = 0; i < n; i++) {
+            if (vec[i]) {
+                cur--; 
+                if (cur < 0) {
+                    ok = false;
+                    break;
+                }
+            } else {
+                cur++;
+            }
+        }
+
+      
+        if (ok) {
+            l = mid;
         } else {
-            one_indices.push_back(i);
-        }
-    }
-    reverse(one_indices.begin(), one_indices.end());
-
-    int total_substrings = n * (n + 1) / 2;
-    int zero_pos = zero_indices.size() - 1;
-    int one_pos = one_indices.size() - 1;
-    for (int i = n - 1; i >= 0; --i) {
-        while (zero_pos >= 0 && zero_indices[zero_pos] >= i) {
-            zero_pos--;
-        }
-        while (one_pos >= 0 && one_indices[one_pos] >= i) {
-            one_pos--;
-        }
-        if (s[i] == '1') {
-            if (zero_pos >= 0 || one_pos >= 0) {
-                total_substrings -= (i + 1);
-            }
-            if (zero_pos >= 0) {
-                zero_pos--;
-            } else if (one_pos >= 0) {
-                one_pos--;
-            }
+            r = mid;
         }
     }
 
-    cout << total_substrings << endl;
+    
+    int res = 0;
+    for (int i = n - 1; i >= 0; i--) {
+        if (s[i] == '1' && l > 0) {
+            l--;
+        } else {
+            res += i + 1;
+        }
+    }
+
+    cout << res << endl;
 }
 
 int main() {
-    ios_base::sync_with_stdio(false);
-    cin.tie(nullptr);
-    
     int t;
     cin >> t;
     while (t--) {
